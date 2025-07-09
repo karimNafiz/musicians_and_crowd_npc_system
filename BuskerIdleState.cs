@@ -9,7 +9,7 @@ namespace Busker
     {
         private BuskerContextManager contextManager;
 
-        public BuskerIdleState(BuskerStates state, BuskerContextManager contextManager) : base(state)
+        public BuskerIdleState(string animName, string animBool, int animLayer, BuskerContextManager contextManager, BuskerStates state) : base(animName, animBool, animLayer, contextManager, state)
         {
             this.contextManager = contextManager;
         }
