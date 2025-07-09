@@ -1,11 +1,13 @@
-using UnityEngine;
 
 namespace Busker 
 {
 
-    public class SignState
+    public class SignState : BuskerBaseState
     {
-    
+        // might have to change this later
+        public SignState(BuskerStates state) : base(state)
+        {
+        }
     }
 
 
