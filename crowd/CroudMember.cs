@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Animations;
 
-public class CrowdMember : MonoBehaviour, Spawnable
+public class CroudMember : MonoBehaviour, Spawnable , IInitializable
 {
     private PlayableGraph graph;
     private AnimationPlayableOutput output;
@@ -20,12 +20,8 @@ public class CrowdMember : MonoBehaviour, Spawnable
         graph = PlayableGraph.Create();
         output = AnimationPlayableOutput.Create(graph, "Animation", animator);
     }
-    // this is temporary solution
-    // hiding the player in start
-    private void Start()
-    {
-        this.gameObject.SetActive(false);
-    }
+
+
 
     public void PlayClip(AnimationClip clip)
     {
@@ -54,5 +50,11 @@ public class CrowdMember : MonoBehaviour, Spawnable
     {
         this.gameObject.SetActive(false);
         return this;
+    }
+
+    // the crowd manager should call the Initialize
+    public void Initialize()
+    {
+        this.gameObject.SetActive(false);
     }
 }

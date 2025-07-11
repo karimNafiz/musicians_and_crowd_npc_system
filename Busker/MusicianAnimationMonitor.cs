@@ -15,7 +15,14 @@ namespace Busker
     [RequireComponent(typeof(Animator))]
     public class MusicianAnimationMonitor : MonoBehaviour
     {
+        // this event will be launched when the musician starts in the idle state
+        public event EventHandler OnMusicianActive;
+        
+        public event EventHandler OnMusicianInactive;
+
+        // this event will be launched when the musician starts the slow guitar
         public event EventHandler OnPerformanceStart;
+
         public event EventHandler OnPerformanceStop;
         public event EventHandler OnPerformanceEnd;
         public event EventHandler OnGuitarSlowStart;
@@ -60,8 +67,13 @@ namespace Busker
 
         public void IsActive() 
         {
+            OnMusicianActive?.Invoke(this, EventArgs.Empty);    
         
-        
+        }
+
+        public void IsInactive() 
+        {
+            OnMusicianInactive?.Invoke(this, EventArgs.Empty);
         }
 
         public void EndPerformance()
