@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Spawn;
 using UnityEngine;
 
-public class MusicCroudMember : MonoBehaviour
+public class MusicCroudManager : MonoBehaviour
 {
 
     // this is our musician
@@ -38,6 +38,9 @@ public class MusicCroudMember : MonoBehaviour
 
     void Start()
     {
+
+        musicianAnimationMonitor.OnMusicianActive += MusicianAnimationMonitor_OnMusicianActive;
+
         // i need to know when the slow guitar animation starts
         // so i can switch the crowd the listening animation 
         musicianAnimationMonitor.OnGuitarSlowStart += MusicianAnimationMonitor_OnGuitarSlowStart;
@@ -67,6 +70,15 @@ public class MusicCroudMember : MonoBehaviour
 
     }
 
+    private void MusicianAnimationMonitor_OnMusicianActive(object sender, System.EventArgs e)
+    {
+                Debug.Log("the musicians performance just started, need to play the idle animation ");
+        crowdSpawner.RandomizeSpawanableInSpawnArea();
+        // need the crow to perform the idle animation set 
+        croudAnimationManager.PlayMainLoop(idleAnimationSetSO);
+        
+    }
+
     private void GetMusicCroud(List<CroudMember> members) 
     {
         if(members == null)
@@ -92,13 +104,20 @@ public class MusicCroudMember : MonoBehaviour
     private void MusicianAnimationMonitor_OnBowStart(object sender, System.EventArgs e)
     {
         Debug.Log("the crowd should play the clapping animation ");
-        croudAnimationManager.PlayRandomClipFromSet(clappingAnimationSetSO);
+        // first I am going to set the main loop 
+        croudAnimationManager.PlayMainLoop(idleAnimationSetSO);
+        // then im gonna play the on shot
+        croudAnimationManager.PlayOneShot(clappingAnimationSetSO);
+
+        // this will make sure when the one shot is complete the playable graph will continue playing the main loop
+        // we don't have to listen to any other events to go back to the main loop
+    
     }
 
     private void MusicianAnimationMonitor_OnGuitarSlowStart(object sender, System.EventArgs e)
     {
         Debug.Log("the crowd should play the listening animation ");
-        croudAnimationManager.PlayRandomClipFromSet(listeningAnimationSetSO);
+        croudAnimationManager.PlayMainLoop(listeningAnimationSetSO);
     }
 
     private void MusicianAnimationMonitor_OnPerformanceEnd(object sender, System.EventArgs e)
@@ -108,10 +127,7 @@ public class MusicCroudMember : MonoBehaviour
 
     private void MusicianAnimationMonitor_OnPerformanceStart(object sender, System.EventArgs e)
     {
-        Debug.Log("the musicians performance just started, need to play the idle animation ");
-        crowdSpawner.RandomizeSpawanableInSpawnArea();
-        // need the crow to perform the idle animation set 
-        croudAnimationManager.PlayRandomClipFromSet(idleAnimationSetSO);
+
 
     }
 

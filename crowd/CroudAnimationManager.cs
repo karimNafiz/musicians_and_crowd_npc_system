@@ -28,12 +28,22 @@ public class CroudAnimationManager
         
     }
 
-    public void PlayRandomClipFromSet(AnimationSetSO clipSet)
+    public void PlayMainLoop(AnimationSetSO clipSet)
     {
-        foreach (var member in members)
+        foreach (CroudMember member in members) 
         {
-            var clip = clipSet.GetRandomClip();
-            member.PlayClip(clip);
+            AnimationClip clip = clipSet.GetRandomClip();
+            member.PlayMainLoop(clip);
+        }
+    
+    }
+
+    public void PlayOneShot(AnimationSetSO clipSet)
+    {
+        foreach (CroudMember member in members)
+        {
+            AnimationClip clip = clipSet.GetRandomClip();
+            member.PlayOneShot(clip);
         }
     }
 
