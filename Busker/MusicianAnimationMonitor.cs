@@ -58,11 +58,17 @@ namespace Busker
             animator = GetComponent<Animator>();
         }
 
+        private void Start()
+        {
+            IsActive();
+        }
+
         public void StartPerformance()
         {
+            Debug.Log("Starting performance... music animation monitor -----");
             OnPerformanceStart?.Invoke(this, EventArgs.Empty);
 
-            currentState = MusicianAnimationState.GuitarSlow;
+            //currentState = MusicianAnimationState.GuitarSlow;
             animator.SetBool(performanceStartAnimBool, true);
             currentGuitarSlowCount = 0;
             currentGuitarFastCount = 0;

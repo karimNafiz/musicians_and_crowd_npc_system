@@ -45,6 +45,9 @@ public class MusicCroudManager : MonoBehaviour
     }
 
 
+    private bool isActive = false;
+
+
     void Start()
     {
 
@@ -81,7 +84,10 @@ public class MusicCroudManager : MonoBehaviour
 
     private void MusicianAnimationMonitor_OnMusicianActive(object sender, System.EventArgs e)
     {
-                Debug.Log("the musicians performance just started, need to play the idle animation ");
+        // if the music crowd manager is active 
+        // then we do not want to randomize the spawnable objects again
+        // no need to change animation states 
+        if (isActive) return;
         crowdSpawner.RandomizeSpawanableInSpawnArea();
         // need the crow to perform the idle animation set 
         PlayMainLoop(new delay()
@@ -138,20 +144,21 @@ public class MusicCroudManager : MonoBehaviour
 
     private void MusicianAnimationMonitor_OnGuitarSlowStart(object sender, System.EventArgs e)
     {
-        Debug.Log("the crowd should play the listening animation ");
-        PlayMainLoop(new delay() 
-        {
-            isDelay = false,
-        } , listeningAnimationSetSO);
     }
 
     private void MusicianAnimationMonitor_OnPerformanceEnd(object sender, System.EventArgs e)
     {
-        throw new System.NotImplementedException();
+        
     }
 
     private void MusicianAnimationMonitor_OnPerformanceStart(object sender, System.EventArgs e)
     {
+        Debug.Log("On Performance Start from music crowd manager ");
+        // when the performance starts 
+        PlayMainLoop(new delay() 
+        {
+            isDelay = false,
+        } , listeningAnimationSetSO);
 
 
     }
