@@ -48,6 +48,11 @@ namespace Busker
 
         private Animator animator;
 
+        
+
+
+
+
         private void Awake()
         {
             animator = GetComponent<Animator>();
@@ -86,13 +91,14 @@ namespace Busker
         {
             //OnGuitarSlowEnd?.Invoke(this, EventArgs.Empty);
             Debug.Log("Entered the function TriggerGuitarSlowEnd)");
-            currentGuitarSlowCount = currentGuitarSlowCount + 1; // i miss python xD
+            currentGuitarSlowCount += 1; // i miss python xD
             // if the current count is below the loop count we simply return 
             Debug.Log($"Current Guitar Slow Count: {currentGuitarSlowCount}, Loop Count: {guitarSlowLoopCount}");
             if (currentGuitarSlowCount < guitarSlowLoopCount) return;
 
             // if current count is above or equal to the loop count
             // we trigger the event and transition to fast guitar
+            Debug.Log("Guitar slow ended ");
             OnGuitarSlowEnd?.Invoke(this, EventArgs.Empty);
 
             // need to restart the currentGuiterSlowCount
@@ -100,13 +106,14 @@ namespace Busker
 
             this.currentState = MusicianAnimationState.GuitarFast;
             animator.SetBool(guitarSlowToFastAnimBool, true); // transition to fast guitar
-            Debug.Log("Guitar slow ended ");
         }
 
         public void TriggerGuitarSlowStart()
         {
-            OnGuitarSlowStart?.Invoke(this, EventArgs.Empty);
+            if (this.currentState == MusicianAnimationState.GuitarSlow) return;
             Debug.Log("Guitar Slow Started ");
+            OnGuitarSlowStart?.Invoke(this, EventArgs.Empty);
+            this.currentState = MusicianAnimationState.GuitarSlow;
         }
 
         // Called by animation event at end of GuitarFast loop
@@ -118,30 +125,32 @@ namespace Busker
             
             if (currentGuitarFastCount < guitarFastLoopCount) return;
 
+            Debug.Log("Guitar fast endedd");
             OnGuitarFastEnd?.Invoke(this, EventArgs.Empty);
             currentGuitarFastCount = 0;
             this.currentState = MusicianAnimationState.Bowing;
             animator.SetBool(guitarSlowToFastAnimBool, false); // reset the slow to fast transition
             animator.SetBool(guitarFastToBowAnimBool, true);
-            Debug.Log("Guitar fast endedd");
         }
 
         public void TriggerGuitarFastStart()
         {
-            OnGuitarFastStart?.Invoke(this, EventArgs.Empty);
+            if (this.currentState == MusicianAnimationState.GuitarFast) return;
             Debug.Log("Guitar Fast started ");
+            OnGuitarFastStart?.Invoke(this, EventArgs.Empty);
+            this.currentState = MusicianAnimationState.GuitarFast;
         }
 
         public void TriggerBowStart()
         {
-            OnBowStart?.Invoke(this, EventArgs.Empty);
             Debug.Log("Bow Started");
+            OnBowStart?.Invoke(this, EventArgs.Empty);
         }
 
         public void TriggerBowEnd()
         {
-            OnBowEnd?.Invoke(this, EventArgs.Empty);
             Debug.Log("Bow ended");
+            OnBowEnd?.Invoke(this, EventArgs.Empty);
         }
 
         public void TriggerPerformanceStop()

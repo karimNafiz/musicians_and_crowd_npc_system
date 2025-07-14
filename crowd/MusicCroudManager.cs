@@ -1,7 +1,9 @@
 using Busker;
 using System.Collections.Generic;
+using System.Collections;
 using Spawn;
 using UnityEngine;
+using System;
 
 public class MusicCroudManager : MonoBehaviour
 {
@@ -15,7 +17,7 @@ public class MusicCroudManager : MonoBehaviour
     private List<CroudMember> members = new();
 
 
-    private CroudAnimationManager croudAnimationManager;    
+    //private CroudAnimationManager croudAnimationManager;    
 
 
     // the spawner
@@ -33,7 +35,14 @@ public class MusicCroudManager : MonoBehaviour
     [SerializeField] private AnimationSetSO listeningAnimationSetSO;
     [SerializeField] private AnimationSetSO clappingAnimationSetSO;
 
-
+    // structs are created within in the stack and not allocated on the heap 
+    private struct delay 
+    {
+        public bool isDelay;
+        public float minDelay;
+        public float maxDelay;
+    
+    }
 
 
     void Start()
@@ -66,7 +75,7 @@ public class MusicCroudManager : MonoBehaviour
         }
 
         // need to initialize our crowd animation manager 
-        croudAnimationManager = new CroudAnimationManager(members);
+        //croudAnimationManager = new CroudAnimationManager(members);
 
     }
 
@@ -75,7 +84,12 @@ public class MusicCroudManager : MonoBehaviour
                 Debug.Log("the musicians performance just started, need to play the idle animation ");
         crowdSpawner.RandomizeSpawanableInSpawnArea();
         // need the crow to perform the idle animation set 
-        croudAnimationManager.PlayMainLoop(idleAnimationSetSO);
+        PlayMainLoop(new delay()
+        {
+            isDelay = false,
+
+        },
+        idleAnimationSetSO);
         
     }
 
@@ -105,9 +119,17 @@ public class MusicCroudManager : MonoBehaviour
     {
         Debug.Log("the crowd should play the clapping animation ");
         // first I am going to set the main loop 
-        croudAnimationManager.PlayMainLoop(idleAnimationSetSO);
+        PlayMainLoop(new delay() 
+        {
+            isDelay = false,
+        }, idleAnimationSetSO);
         // then im gonna play the on shot
-        croudAnimationManager.PlayOneShot(clappingAnimationSetSO);
+        PlayOneShot(new delay() 
+        {
+            isDelay = true,
+            minDelay = 0.0f,
+            maxDelay = 0.7f,
+        },clappingAnimationSetSO);
 
         // this will make sure when the one shot is complete the playable graph will continue playing the main loop
         // we don't have to listen to any other events to go back to the main loop
@@ -117,7 +139,10 @@ public class MusicCroudManager : MonoBehaviour
     private void MusicianAnimationMonitor_OnGuitarSlowStart(object sender, System.EventArgs e)
     {
         Debug.Log("the crowd should play the listening animation ");
-        croudAnimationManager.PlayMainLoop(listeningAnimationSetSO);
+        PlayMainLoop(new delay() 
+        {
+            isDelay = false,
+        } , listeningAnimationSetSO);
     }
 
     private void MusicianAnimationMonitor_OnPerformanceEnd(object sender, System.EventArgs e)
@@ -136,4 +161,51 @@ public class MusicCroudManager : MonoBehaviour
     {
         
     }
+
+    /// <summary>
+    /// I am migrating the crowd animation manager code to in this class 
+    /// if I have to make crowd animation monobehaviour, then I have to put it in the scene
+    /// If I have to put it in the scene I adding more complecity in managing the animation manager which will be a pain in the ass
+    /// </summary>
+    /// 
+    private void PlayMainLoop(delay delay , AnimationSetSO clipSet)
+    {
+        foreach (CroudMember member in members)
+        {
+            AnimationClip clip = clipSet.GetRandomClip();
+            StartCoroutine(ScheduleFunctionWithRandomDelay(delay , () => { member.PlayMainLoop(clip); } ));
+            
+        }
+
+    }
+
+    private void PlayOneShot(delay delay ,  AnimationSetSO clipSet)
+    {
+        foreach (CroudMember member in members)
+        {
+            AnimationClip clip = clipSet.GetRandomClip();
+            StartCoroutine(ScheduleFunctionWithRandomDelay(delay ,  () => { member.PlayOneShot(clip); } ));
+            
+        }
+    }
+    IEnumerator ScheduleFunctionWithRandomDelay(delay delay,  Action callback) 
+    {
+        if (delay.isDelay) 
+        {
+            float delay_time  = UnityEngine.Random.Range(delay.minDelay, delay.maxDelay);
+            yield return new WaitForSeconds(delay_time);
+        
+        }
+        callback?.Invoke();
+
+
+    }
+
+    public void Clear()
+    {
+        members.Clear();
+    }
+
+
+
 }

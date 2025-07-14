@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.Animations;
 
+
 public class CroudMember : MonoBehaviour, Spawnable, IInitializable
 {
     [SerializeField] private Animator animator;
@@ -148,4 +149,5 @@ public class CroudMember : MonoBehaviour, Spawnable, IInitializable
     {
         this.gameObject.SetActive(false);
     }
+
 }

@@ -11,8 +11,10 @@ using System.Collections.Generic;
 /// but right now I just want to get the crowd animations working
 /// </summary>
 
+/// need to make croud animation manager monobehaviour 
 
-public class CroudAnimationManager 
+
+public class CroudAnimationManager : MonoBehaviour
 {
     private readonly List<CroudMember> members;
 
