@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: IdleAnimationSet
   m_EditorClassIdentifier: 
   clips:
-  - {fileID: 7400000, guid: 054c26109d3619342a9ea96bd297578d, type: 2}
+  - {fileID: 7400000, guid: 056cdcf19604f5e489777f44c4848309, type: 2}

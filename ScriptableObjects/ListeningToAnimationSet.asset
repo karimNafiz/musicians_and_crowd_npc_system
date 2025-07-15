@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: ListeningToAnimationSet
   m_EditorClassIdentifier: 
   clips:
-  - {fileID: 7400000, guid: 863e51aa2c0a72546b225d9cd123ead3, type: 2}
-  - {fileID: 7400000, guid: 31a11355947396243bb0313c501bf520, type: 2}
+  - {fileID: 7400000, guid: bac4d4f4b51c93743ae21b4d18921ea0, type: 2}
+  - {fileID: 7400000, guid: 65d61e3b9f7c0414788bd6692bc2cd7b, type: 2}
