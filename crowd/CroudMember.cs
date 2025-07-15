@@ -9,6 +9,13 @@ public class CroudMember : MonoBehaviour, Spawnable, IInitializable
     [SerializeField] private Animator animator;
     [SerializeField] private float blendDuration = 0.25f;
 
+    // we need this because before 
+    // there might be frames where the crowd member has started (by started I mean start function has been called) ->
+    // then // the animator is not set yet, so we need to have a default animation clip to play
+    [SerializeField] AnimationClip idleAnimation; // this is a safety mechanism
+
+
+
     private PlayableGraph graph;
     private AnimationMixerPlayable mixer;
     private AnimationPlayableOutput output;
@@ -49,6 +56,9 @@ public class CroudMember : MonoBehaviour, Spawnable, IInitializable
         mixer.SetInputWeight(1, 0f);
 
         output.SetSourcePlayable(mixer);
+        // read comments above the SerializedField idleAnimation 
+        // this is a safety mechanism
+        PlayMainLoop(idleAnimation); // Play idle animation as default
         graph.Play();
     }
 

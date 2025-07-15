@@ -51,6 +51,8 @@ public class MusicCroudManager : MonoBehaviour
 
         musicianAnimationMonitor.OnMusicianActive += MusicianAnimationMonitor_OnMusicianActive;
 
+        musicianAnimationMonitor.OnMusicianInactive += MusicianAnimationMonitor_OnMusicianInactive;
+
         // i need to know when the slow guitar animation starts
         // so i can switch the crowd the listening animation 
         musicianAnimationMonitor.OnGuitarSlowStart += MusicianAnimationMonitor_OnGuitarSlowStart;
@@ -82,6 +84,17 @@ public class MusicCroudManager : MonoBehaviour
         // need to initialize our crowd animation manager 
         //croudAnimationManager = new CroudAnimationManager(members);
 
+    }
+
+    private void MusicianAnimationMonitor_OnMusicianInactive(object sender, EventArgs e)
+    {
+        // if the music crowd manager is not active
+        // then we simply return
+        if(!isActive) return;
+        foreach(CroudMember member in members)
+        {
+            member.SetActive(false);
+        }   
     }
 
     private void MusicianAnimationMonitor_OnMusicianActive(object sender, System.EventArgs e)
@@ -130,13 +143,16 @@ public class MusicCroudManager : MonoBehaviour
 
     private void MusicianAnimationMonitor_OnBowStart(object sender, System.EventArgs e)
     {
-        Debug.Log("the crowd should play the clapping animation ");
+        //Debug.Log("the crowd should play the clapping animation ");
         // first I am going to set the main loop 
+        // this will ensure, after the clapping animation which is an one shot animation 
+        // we go back to playing the main loop animation 
+        // the crowd members are designed that way
         PlayMainLoop(new delay() 
         {
             isDelay = false,
         }, idleAnimationSetSO);
-        // then im gonna play the on shot
+        // then im gonna play the on shot clapping animation
         PlayOneShot(new delay() 
         {
             isDelay = true,
@@ -158,6 +174,8 @@ public class MusicCroudManager : MonoBehaviour
         
     }
 
+    // personal preference, if we want to play the main listening loop in the performance start
+    // or OnGuitarSlowStart
     private void MusicianAnimationMonitor_OnPerformanceStart(object sender, System.EventArgs e)
     {
         Debug.Log("On Performance Start from music crowd manager ");
