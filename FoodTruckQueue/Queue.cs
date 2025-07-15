@@ -1,170 +1,190 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
-namespace FoodTruck.Queue 
+
+namespace FoodTruck.Queue
 {
     public class Queue : MonoBehaviour
     {
         private List<IQueueParticipant> queueParticipants;
-
-        /// <summary>
-        /// the current participant will represent the head of the queue
-        /// to optimize memory and performance, I will use the end of the queueParticipant as the head of the queue
-        /// to make the queue work properly, the last children needs to be the head of the queue
-        /// </summary>
-
         private IQueueParticipant currentParticipant;
+
         private bool isQueueMoving = false;
         private bool isQueueHeadInAction = false;
+        private bool isActive = false;
+
+        public bool IsActive => isActive;
+
         void Start()
         {
-        
+            // StartQueue could be triggered here or from external script
         }
 
-        // Update is called once per frame
         void Update()
         {
-        
+            // Optional: trigger-based logic can go here
         }
+
         /// <summary>
-        /// This function will be used to start the queue
+        /// Initializes and starts the queue.
         /// </summary>
-        void StartQueue() 
+        void StartQueue()
         {
             queueParticipants = new List<IQueueParticipant>();
-            // we get all the queue participants 
             GetQueueParticipants();
-            // listen to the head of the queue -> currentParticipant
-            if (currentParticipant == null) 
+
+            if (IsQueueEmpty())
             {
-                Debug.LogWarning("Current participant is null, cannot start queue.");
+                Debug.LogWarning("Queue is empty. Cannot start.");
+                isActive = false;
                 return;
             }
+
+            currentParticipant = queueParticipants[queueParticipants.Count - 1];
             ListenToQueueParticipant(currentParticipant);
+            isActive = true;
             MoveQueue();
-
-
         }
 
         /// <summary>
-        /// we use this function to get the queue participants
-        /// this function expects a reference to the list of queue participants
+        /// Gathers all IQueueParticipant children under this object.
         /// </summary>
-        void GetQueueParticipants() 
+        void GetQueueParticipants()
         {
-            if(queueParticipants == null)
+            if (queueParticipants == null)
             {
                 Debug.LogError("Queue participants list is null.");
                 return;
             }
-            for (int i = 0; i < this.transform.childCount; i++) 
+
+            for (int i = 0; i < transform.childCount; i++)
             {
-                if (this.transform.GetChild(i).TryGetComponent<IQueueParticipant>(out IQueueParticipant participant)) 
+                if (transform.GetChild(i).TryGetComponent<IQueueParticipant>(out IQueueParticipant participant))
                 {
                     queueParticipants.Add(participant);
-
                 }
-            
             }
-            // assigning the head of the queue to the last participant in the list 
 
-            this.currentParticipant = queueParticipants[queueParticipants.Count - 1];
-
+            if (IsQueueEmpty())
+            {
+                Debug.LogWarning("No valid queue participants found.");
+            }
         }
-        void ListenToQueueParticipant(IQueueParticipant queueParticipant) 
-        {
-            
-            queueParticipant.OnActionStart += QueueParticipant_OnActionStart;
-            queueParticipant.OnActionEnd += QueueParticipant_OnActionEnd;
-            queueParticipant.OnActionPointReached += QueueParticipant_OnActionPointReached;
 
-        }
-        void UnlistenToQueueParticipant(IQueueParticipant queueParticipant)
+        /// <summary>
+        /// Begins listening to the specified queue participant's events.
+        /// </summary>
+        void ListenToQueueParticipant(IQueueParticipant participant)
         {
-            queueParticipant.OnActionStart -= QueueParticipant_OnActionStart;
-            queueParticipant.OnActionEnd -= QueueParticipant_OnActionEnd;
-            queueParticipant.OnActionPointReached -= QueueParticipant_OnActionPointReached;
+            participant.OnActionStart += QueueParticipant_OnActionStart;
+            participant.OnActionEnd += QueueParticipant_OnActionEnd;
+            participant.OnActionPointReached += QueueParticipant_OnActionPointReached;
+        }
+
+        /// <summary>
+        /// Stops listening to the specified queue participant's events.
+        /// </summary>
+        void UnlistenToQueueParticipant(IQueueParticipant participant)
+        {
+            participant.OnActionStart -= QueueParticipant_OnActionStart;
+            participant.OnActionEnd -= QueueParticipant_OnActionEnd;
+            participant.OnActionPointReached -= QueueParticipant_OnActionPointReached;
         }
 
         private void QueueParticipant_OnActionPointReached(object sender, EventArgs e)
         {
-            if (isQueueMoving) 
-            {
-                // need to stop the queue
+            if (!isActive) return;
+
+            if (isQueueMoving)
                 StopQueue();
-            }
+
             if (isQueueHeadInAction) return;
+
             isQueueHeadInAction = true;
-            this.currentParticipant.StartAction();
+            currentParticipant.StartAction();
         }
 
-
-        private void QueueParticipant_OnActionStart(object sender, EventArgs e) 
+        private void QueueParticipant_OnActionStart(object sender, EventArgs e)
         {
-            // currently do not know what to do 
+            // Optionally do something when action starts
         }
 
-        private void QueueParticipant_OnActionEnd(object sender, EventArgs e) 
+        private void QueueParticipant_OnActionEnd(object sender, EventArgs e)
         {
-            this.currentParticipant.EndAction();
+            if (!isActive) return;
+
+            currentParticipant.EndAction();
             isQueueHeadInAction = false;
-            // we need to change the current head of the queue
-            // before changing the head of the queue
-            // we unsubsribe from the current participant events
+
             UnlistenToQueueParticipant(currentParticipant);
-            // we then need to change teh head of the queue
             ChangeHeadOfQueue();
-            // we then need to listen to the new head of the queue
+
+            if (!isActive) return; // queue might be empty now
+
             ListenToQueueParticipant(currentParticipant);
-
-
-        }
-
-        private void ChangeHeadOfQueue() 
-        {
-            if (IsQueueEmpty()) return;
-            
-            queueParticipants.RemoveAt(queueParticipants.Count - 1);
-            this.currentParticipant = queueParticipants[queueParticipants.Count - 1];
-
-        }
-        private bool  IsQueueEmpty() 
-        {
-            return queueParticipants.Count == 0;
-
+            MoveQueue();
         }
 
         /// <summary>
-        /// this function will be used to move the queue
-        /// when the head of the queue has finished their action
+        /// Safely advances the queue to the next head.
         /// </summary>
-        void MoveQueue() 
+        private void ChangeHeadOfQueue()
         {
-            if (isQueueMoving) return;
+            if (IsQueueEmpty())
+            {
+                isActive = false;
+                currentParticipant = null;
+                Debug.Log("Queue is now empty.");
+                return;
+            }
+
+            queueParticipants.RemoveAt(queueParticipants.Count - 1);
+
+            if (IsQueueEmpty())
+            {
+                isActive = false;
+                currentParticipant = null;
+                Debug.Log("Queue is now empty after removing participant.");
+                return;
+            }
+
+            currentParticipant = queueParticipants[queueParticipants.Count - 1];
+        }
+
+        /// <summary>
+        /// Whether the queue has no participants left.
+        /// </summary>
+        private bool IsQueueEmpty()
+        {
+            return queueParticipants == null || queueParticipants.Count == 0;
+        }
+
+        /// <summary>
+        /// Starts moving all participants in the queue.
+        /// </summary>
+        void MoveQueue()
+        {
+            if (isQueueMoving || !isActive || IsQueueEmpty()) return;
+
             isQueueMoving = true;
             foreach (IQueueParticipant participant in queueParticipants)
             {
                 participant.Move();
             }
-
         }
 
         /// <summary>
-        /// this function will be used to stop the queue
-        /// when the head of the queue has reached the action point 
+        /// Stops all participants in the queue.
         /// </summary>
-        void StopQueue() 
+        void StopQueue()
         {
-            if(!isQueueMoving) return;
+            if (!isQueueMoving || !isActive || IsQueueEmpty()) return;
+
             isQueueMoving = false;
             foreach (IQueueParticipant participant in queueParticipants)
             {
                 participant.Stop();
-            }   
-
+            }
         }
-
     }
-
-
 }
