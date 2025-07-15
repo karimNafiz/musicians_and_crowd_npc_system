@@ -147,7 +147,17 @@ public class CroudMember : MonoBehaviour, Spawnable, IInitializable
 
     public void Initialize()
     {
-        this.gameObject.SetActive(false);
+        // changing this for testing purposes
+        this.SetActive(true);
     }
 
+    // we just check if the flag incoming is different than the current state 
+    // then 
+    public void SetActive(bool flag) 
+    {
+        if (!(flag & this.gameObject.activeSelf)) 
+        {
+            this.gameObject.SetActive(flag);
+        }
+    }
 }

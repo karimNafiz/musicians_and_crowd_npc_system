@@ -8,34 +8,28 @@ using System;
 public class MusicCroudManager : MonoBehaviour
 {
 
-    // this is our musician
-    // we need to listen to its animation events 
+    // this is our musician 
+    // we listen to events from the musician
     [SerializeField] private MusicianAnimationMonitor musicianAnimationMonitor;
-
 
     // the crowd members we are suppose manage
     private List<CroudMember> members = new();
 
-
-    //private CroudAnimationManager croudAnimationManager;    
-
-
-    // the spawner
-    // while we the music crowd manager is intializing
-    // we need to randomize the position of the spawnable objects
-    // in our case the spawnable objects are the crowd members
-    // the crowd members implement Spawnable interface
+    // random spawner
+    // the spawner deals with ISpawner interface
+    // it will store references to the children
     [SerializeField] private SpawnGeneric crowdSpawner;
 
-    // These are the animation sets we need 
-    // each set have collection of similar animations
-    // instead of using the same animation 
-    // we introduce some variability by randomly assigning animations from the set
+    // animation sets we need
+    // when the musician is not performing we need to randomly assign the crowd members from the idle animation set
+    // when the musician is performing we need to assign the listening animation set 
+    // when the musician is bowing we need to assign from the cheering/clapping animation set
     [SerializeField] private AnimationSetSO idleAnimationSetSO;
     [SerializeField] private AnimationSetSO listeningAnimationSetSO;
     [SerializeField] private AnimationSetSO clappingAnimationSetSO;
 
     // structs are created within in the stack and not allocated on the heap 
+    // we need the structs to pass information to coroutines about delays
     private struct delay 
     {
         public bool isDelay;
@@ -44,12 +38,16 @@ public class MusicCroudManager : MonoBehaviour
     
     }
 
-
+    // flag to keep track of the state 
+    // if the music crowd manager is active or not 
     private bool isActive = false;
 
 
     void Start()
     {
+        /// <summary>
+        /// listening to musician events
+        /// </summary>
 
         musicianAnimationMonitor.OnMusicianActive += MusicianAnimationMonitor_OnMusicianActive;
 
@@ -66,12 +64,16 @@ public class MusicCroudManager : MonoBehaviour
         // need to know when the bow animation start
         musicianAnimationMonitor.OnBowStart += MusicianAnimationMonitor_OnBowStart;
 
+        // getting hold of the children
         GetMusicCroud(members);
+
         // I am initializing them explicitely
         // need to initialize the members from the manager
         // to avoid synchronization issues
         // we can't tell for sure if the managers start will run after the start of all the members
         // to make code more readable 
+
+        // right now the Initialize function isn't doing much 
         foreach (CroudMember member in members)
         {
             member.Initialize();
@@ -88,6 +90,11 @@ public class MusicCroudManager : MonoBehaviour
         // then we do not want to randomize the spawnable objects again
         // no need to change animation states 
         if (isActive) return;
+        isActive = true;
+        foreach (CroudMember member in members)
+        {
+            member.SetActive(true);
+        }
         crowdSpawner.RandomizeSpawanableInSpawnArea();
         // need the crow to perform the idle animation set 
         PlayMainLoop(new delay()
