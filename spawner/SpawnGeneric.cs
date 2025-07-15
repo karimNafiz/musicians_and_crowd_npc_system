@@ -79,6 +79,7 @@ namespace Spawn
         /// <param name="npcs">Array of NPCHandler instances to be positioned randomly.</param>
         public void RandomizeSpawanableInSpawnArea()
         {
+            Debug.Log("this function is called ");
             // foreach is slower than normal for loop
             foreach (Spawnable spawnable in this.spawnables) 
             {

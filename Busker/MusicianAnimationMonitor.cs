@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Busker
@@ -60,7 +61,18 @@ namespace Busker
 
         private void Start()
         {
-            IsActive();
+            StartCoroutine(ScheduleFunctionWithOneFrameDelay(() =>
+            {
+                Debug.Log("Musician Animation Monitor started");
+                IsActive(); // Notify that the musician is active
+            }));
+        }
+
+        IEnumerator ScheduleFunctionWithOneFrameDelay(Action action) 
+        {
+            yield return null; // Wait for one frame
+            action?.Invoke(); // Invoke the action after the delay
+
         }
 
         public void StartPerformance()

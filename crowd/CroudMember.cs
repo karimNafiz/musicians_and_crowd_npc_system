@@ -145,7 +145,7 @@ public class CroudMember : MonoBehaviour, Spawnable, IInitializable
     public Spawnable Spawn(Vector3 position)
     {
         this.transform.position = position;
-        this.gameObject.SetActive(true);
+        this.SetActive(true);
         return this;
     }
 
