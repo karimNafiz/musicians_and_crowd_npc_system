@@ -11,6 +11,10 @@ public interface IQueueParticipant
     public void StartAction();
     public void EndAction();
 
+    // I need to include this function because I am using Location Reached trigger
+    public void NotifyLocationReached();
+    public void SetRightHandIKTarget(Transform target);
+
     
 
     public void Move();

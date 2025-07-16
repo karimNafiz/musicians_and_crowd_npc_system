@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: ClapAnimationSetSO
   m_EditorClassIdentifier: 
   clips:
-  - {fileID: 7400000, guid: 97958fbd85aca7f419a0a67b3a476c2c, type: 2}
+  - {fileID: 7400000, guid: b9a8bb3de74dabc4b98961ac0d2cebda, type: 2}

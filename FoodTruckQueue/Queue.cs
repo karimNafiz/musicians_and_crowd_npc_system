@@ -6,6 +6,17 @@ namespace FoodTruck.Queue
 {
     public class Queue : MonoBehaviour
     {
+        // maybe have an SO of queue participants
+        // SO stores ququeue participants 
+        // and when we want to refill the queue
+        // we can spawn at the start of the queue
+        // TODO:
+        // 
+
+
+
+
+
         private List<IQueueParticipant> queueParticipants;
         private IQueueParticipant currentParticipant;
 
@@ -18,6 +29,7 @@ namespace FoodTruck.Queue
         void Start()
         {
             // StartQueue could be triggered here or from external script
+            StartQueue();
         }
 
         void Update()
@@ -101,7 +113,9 @@ namespace FoodTruck.Queue
             if (isQueueHeadInAction) return;
 
             isQueueHeadInAction = true;
-            currentParticipant.StartAction();
+            // the queue's sole responsiblity is to manage the queue 
+            // so I have decided to no call the .StartAction() function from here
+            //currentParticipant.StartAction();
         }
 
         private void QueueParticipant_OnActionStart(object sender, EventArgs e)
